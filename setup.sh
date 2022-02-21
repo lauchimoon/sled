@@ -6,7 +6,6 @@
 #  - Linux                   ./setup.sh
 #  - Windows (w64devkit)     ./setup.sh
 #  - Windows (cross compile) TARGET=Windows_NT ./setup.sh
-#  - Web                     TARGET=Web ./setup.sh
 # ______________________________________________________________________________
 #
 

@@ -6,7 +6,6 @@
 #  - Linux                   ./build.sh
 #  - Windows (w64devkit)     ./build.sh
 #  - Windows (cross compile) TARGET=Windows_NT ./build.sh
-#  - Web                     TARGET=Web ./build.sh
 #
 #  - Debug                   DEBUG=1 ./build.sh
 #  - Build and run           ./build.sh -r
