@@ -1,0 +1,12 @@
+raylib/
+include/raylib.h
+lib/
+
+sled
+*.exe
+*.html
+*.wasm
+*.js
+*.data
+
+sled_map_info.txt

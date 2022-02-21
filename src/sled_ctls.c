@@ -9,7 +9,7 @@
 char *pathof(char *path, int size, char buffer[])
 {
 #ifdef _WIN32
-    GetFullPathName(path, size, buffer);
+    GetFullPathNameA(path, size, buffer, NULL);
     return buffer;
 #else
     return realpath(path, NULL);
