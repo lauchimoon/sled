@@ -14,7 +14,7 @@
 
 # Default build options, override options from the command line
 
-# Platform, one of Windows_NT, Linux, Web, Android. Defaults to your OS.
+# Platform, one of Windows_NT, Linux. Defaults to your OS.
 [[ "$TARGET" = "" ]] && TARGET=`uname`
 
 # Executable name, extension is added depending on target platform.
