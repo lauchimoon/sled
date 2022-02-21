@@ -42,17 +42,26 @@ toheader
 ```
 
 ## Building
-You will need raylib and GNU make.
-```
-$ git clone https://github.com/catmanl/sled.git
-$ cd sled/
-$ cd src/
-$ make
-```
+
+### Linux
+1. Run `./setup.sh` to build raylib.
+2. Run `./build.sh` to compile the project.
+
+### Windows
+1. Download [w64devkit](https://github.com/skeeto/w64devkit/releases):
+* `w64devkit-x.x.x.zip` for 64-bit
+* `w64devkit-i686-x.x.x.zip` for 32-bit
+2. Extract w64devkit and run `w64devkit.exe`.
+3. Inside w64devkit, go to the directory where you cloned sled.
+4. Run `./setup.sh` to build raylib.
+5. Run `./build.sh` to compile the project.
+
+### Windows (cross compile)
+1. Install `mingw-w64` using your package manager.
+2. Run `TARGET=Windows_NT ./setup.sh` to build raylib.
+3. Run `TARGET=Windows_NT ./build.sh` to compile the project.
 
 ## Coming soon
-SLED on Windows.
-
 SLED will have an api to load maps into your games. Although you can already use header files, it would be expensive in case it's too big of a map.
 
 ## Credits
