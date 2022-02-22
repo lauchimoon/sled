@@ -1,7 +1,4 @@
-<p align="center" width="100%">
-    <img src="https://github.com/catmanl/sled/tree/main/assets/logo_big.png"/>
-    Stupid Level EDitor
-</p>
+<img align="center" src="https://github.com/catmanl/sled/tree/main/assets/logo_big.png"/>
 
 **The program is at a very WIP stage.**
 
