@@ -19,4 +19,4 @@ $ gcc raylib_example.c ../sled_api.c -I../ -I../../../include/ -L../../../lib/Wi
 ```
 
 There are some sample files so it should render the following:
-![]("./rl_screenshot.png")
+![]("https://github.com/catmanl/sled/blob/main/src/api/examples/rl_screenshot.png")
