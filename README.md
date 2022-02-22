@@ -33,12 +33,29 @@ Will look for a `map.sled` file and a `sled_map_info.txt` file on the current wo
 - Use the mouse wheel to zoom in or out
 - Hold shift and use the left mouse button to pan over the map
 - Use C and V to change the tileset index (this will be changed)
+- Use G to turn the grid on or off
 
 ### Exporting
 SLED has a vim-like way to export your maps. Inside the editor, there is a small textbox which will ask for commands. The commands are
 ```
 tobin
 toheader
+```
+
+## API
+SLED has a very simple API which allows you to use your maps on your games. It can be found under the [api](https://github.com/catmanl/sled/tree/main/src/api/) directory, with its' respective examples.
+```c
+typedef struct sled_map {
+    unsigned char *grid;
+    int width;
+    int height;
+    int tile_width;
+    int tile_height;
+    const char *tilesheet;
+} sled_map;
+
+sled_map sled_load_map(const char *map_file, const char *map_info_file);
+void sled_free_map(sled_map map);
 ```
 
 ## Building
@@ -62,7 +79,8 @@ toheader
 3. Run `TARGET=Windows_NT ./build.sh` to compile the project.
 
 ## Coming soon
-SLED will have an api to load maps into your games. Although you can already use header files, it would be expensive in case it's too big of a map.
+- 2D tilesheet support (current is 1D)
+- Multiple tiles drawing/erasing
 
 ## Credits
 Font - Ubuntu Mono R
