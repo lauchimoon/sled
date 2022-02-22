@@ -3,7 +3,9 @@
 #include "sled_screens.h"
 
 #include "../assets/font.h" // embedded font
+#include "../assets/logo.h"
 #include <stddef.h>
+#include <stdio.h>
 
 void sled_init(SLED *sled)
 {
@@ -11,9 +13,12 @@ void sled_init(SLED *sled)
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SLED_WINDOW_WIDTH, SLED_WINDOW_HEIGHT, SLED_TITLE);
+    Image image = LoadImageFromMemory(".png", logo_png, logo_png_len);
     SetExitKey(KEY_NULL);
     SetWindowMinSize(SLED_WINDOW_WIDTH, SLED_WINDOW_HEIGHT);
     sled->screen = SCREEN_TITLE;
+    SetWindowIcon(image);
+    UnloadImage(image);
 
     if (!sled->ui) {
         sled->screen = SCREEN_EDIT;

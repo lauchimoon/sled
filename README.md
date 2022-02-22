@@ -1,5 +1,7 @@
-# SLED
-Stupid Level EDitor
+<div align="center">
+    <img src="https://github.com/catmanl/sled/tree/main/assets/logo_big.png"/>
+    Stupid Level EDitor
+</div>
 
 **The program is at a very WIP stage.**
 
@@ -7,6 +9,7 @@ Stupid Level EDitor
 - Small: a relatively flexible editor to make maps
 - Export functionality: export to a `.sled` file or a header file
 - Easy to use
+- A very simple API which allows you to use maps on games you make
 
 ## Usage
 
