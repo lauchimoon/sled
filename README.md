@@ -1,4 +1,4 @@
-<img align="center" src=https://github.com/catmanl/sled/blob/main/assets/logo_big.png>
+![](https://github.com/catmanl/sled/blob/main/assets/logo_big.png)
 
 **The program is at a very WIP stage.**
 
