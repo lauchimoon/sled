@@ -255,6 +255,7 @@ static void input(SLED sled)
         show_cmd_counter++;
 
         if (show_cmd_counter >= 90) {
+            show_cmd_counter = 0;
             show_cmd_text = false;
         }
     }
