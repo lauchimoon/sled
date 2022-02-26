@@ -18,5 +18,5 @@ Windows (using w64devkit):
 $ gcc raylib_example.c ../sled_api.c -I../ -I../../../include/ -L../../../lib/Windows_NT/ -lraylib -lopengl32 -lgdi32 -lwinmm -Wl,--subsystem,windows -o raylib_example.exe
 ```
 
-There are some sample files so it should render the following:
+There are some sample files so it should render the following: (if you use the sample_sheet.png file on assets/)
 ![](https://github.com/catmanl/sled/blob/main/src/api/examples/rl_screenshot.png)
