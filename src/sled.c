@@ -10,9 +10,10 @@
 void sled_init(SLED *sled)
 {
     // raylib setup
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetTraceLogLevel(LOG_NONE);
     InitWindow(SLED_WINDOW_WIDTH, SLED_WINDOW_HEIGHT, SLED_TITLE);
+    SetWindowState(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_MAXIMIZED);
+
     Image image = LoadImageFromMemory(".png", logo_png, logo_png_len);
     SetExitKey(KEY_NULL);
     SetWindowMinSize(SLED_WINDOW_WIDTH, SLED_WINDOW_HEIGHT);
