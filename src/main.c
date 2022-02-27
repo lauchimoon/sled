@@ -1,15 +1,11 @@
 #include "sled_context.h"
 #include "sled_misc.h"
-#include "sled_contextless.h" // Standalone functions
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
-#define PATH_SIZE   512
-
 int main(int argc, char **argv)
 {
-    char path[PATH_SIZE] = { 0 };
     SLED sled;
 
     if (argc < 2 || argc > 2) {
@@ -52,11 +48,11 @@ int main(int argc, char **argv)
             fprintf(f, "%d\n", sled.map_height);
             fprintf(f, "%d\n", sled.tile_size_x);
             fprintf(f, "%d\n", sled.tile_size_y);
-            fprintf(f, "%s\n", pathof(sled.tileset_path, PATH_SIZE, path));
+            fprintf(f, "%s\n", sled.tileset_path);
             fclose(f);
             sled.situation = SITUATION_NEW;
         } else if (strcmp(argv[1], "load") == 0) {
-            assert(FileExists("map.sled"));
+            assert(FileExists("map.sled")); // TODO: ask for the map.sled location
             sled.situation = SITUATION_LOAD;
         } else {
             sled.ui = true;
