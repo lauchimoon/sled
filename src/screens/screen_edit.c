@@ -18,6 +18,7 @@
 static void input(SLED);
 static void export_binary_map(SLED, const char *);
 static void export_header_map(SLED, const char *);
+static void draw_render_texture(RenderTexture2D);
 
 static Camera2D camera = { 0 };
 static Vector2 last_mouse_pos = { 0 };
@@ -27,7 +28,12 @@ static TileMap *tilemap = { 0 };
 static TileSet *tileset = { 0 };
 static SledUITextBox cmd_textbox = { 0 };
 static Rectangle cmd_textbox_bounds = { 0 };
+static Rectangle frame_rec = { 0 };
 static char textbox_content[CMD_SIZE + 1] = "\0";
+
+static RenderTexture2D target = { 0 };
+static int sq_width = 0;
+static int sq_height = 0;
 
 static int tileset_display = 0;
 static int tileset_index = 0;
@@ -59,7 +65,7 @@ static int show_cmd_counter = 0;
 void sled_screen_edit_init(SLED *sled)
 {
     current_tile = (Vector2){ 0.0f, 0.0f };
-    camera.offset = (Vector2){ 32*2, 32 };
+    camera.offset = (Vector2){ 10.0f, 10.0f };
     camera.target = (Vector2){ 0.0f, 0.0f };
     camera.rotation = 0.0f;
     camera.zoom = 1.5f;
@@ -133,22 +139,44 @@ void sled_screen_edit_init(SLED *sled)
     cmd_text_index = 0;
     show_cmd_text = false;
     show_cmd_counter = 0;
+
+    // Rendering square
+    sq_width = (GetScreenWidth()/2) + 170;
+    sq_height = GetScreenHeight() - 20;
+    target = LoadRenderTexture(sq_width, sq_height);
+    frame_rec = (Rectangle){ 10.0f, 10.0f, sq_width - map_tile_size_x/3, sq_height };
 }
 
 void sled_screen_edit_update(SLED *sled)
 {
     input(*sled);
     cmd_textbox.empty_text = "Type a command";
+
+    // Rendering square
+    sq_width = (GetScreenWidth()/2) + 170;
+    sq_height = GetScreenHeight() - 20;
+
+    if (IsWindowResized()) {
+        UnloadRenderTexture(target);
+        target = LoadRenderTexture(sq_width, sq_height);
+    }
+    frame_rec = (Rectangle){ 10.0f, 10.0f, sq_width - map_tile_size_x/3, sq_height };
 }
 
 void sled_screen_edit_draw(SLED *sled)
 {
-    BeginMode2D(camera);
-        Rectangle current_tile_rec = { current_tile.x*map_tile_size_x, current_tile.y*map_tile_size_y, map_tile_size_x, map_tile_size_y }; // Cursor
-        TileMapDraw(tilemap);
-        TileMapDrawGrid(tilemap, flag_grid? WHITE : BLANK);
-        DrawRectangleLinesEx(current_tile_rec, 2, GREEN);
-    EndMode2D();
+    BeginTextureMode(target);
+        ClearBackground(BLANK);
+        BeginMode2D(camera);
+            Rectangle current_tile_rec = { current_tile.x*map_tile_size_x, current_tile.y*map_tile_size_y, map_tile_size_x, map_tile_size_y }; // Cursor
+            TileMapDraw(tilemap);
+            TileMapDrawGrid(tilemap, flag_grid? WHITE : BLANK);
+            DrawRectangleLinesEx(current_tile_rec, 2, GREEN);
+        EndMode2D();
+    EndTextureMode();
+
+    draw_render_texture(target); // NOTE: this function is not portable. Implementation depends on what the programmer wants to do.
+    DrawRectangleLinesEx(frame_rec, 3, LIME); // Draw a frame around the grid
 
     Vector2 tile_pos = { (10 + map_tile_size_x) + 30, GetScreenHeight() - (map_tile_size_y + map_tile_size_y + 1) }; // Where the tile preview will be rendered
     Rectangle tile_subtexture = { tileset_display, 0, map_tile_size_x, map_tile_size_y };
@@ -173,6 +201,7 @@ void sled_screen_edit_deinit(SLED *sled)
     free(save_data);
     UnloadFileData(loaded_data);
     free(map_info);
+    UnloadRenderTexture(target);
 }
 
 // -----
@@ -200,7 +229,9 @@ static void input(SLED sled)
     }
 
     // Zoom in or out
-    camera.zoom += (GetMouseWheelMove()*SCROLL_SPEED)/100;
+    if (CheckCollisionPointRec(GetMousePosition(), frame_rec)) {
+        camera.zoom += (GetMouseWheelMove()*SCROLL_SPEED)/100;
+    }
     if (camera.zoom <= 0.7f) {
         camera.zoom = 0.7f;
     }
@@ -214,7 +245,9 @@ static void input(SLED sled)
     }
 
     // Panning
-    flag_pan = IsKeyDown(KEY_LEFT_SHIFT);
+    if (CheckCollisionPointRec(GetMousePosition(), frame_rec)) {
+        flag_pan = IsKeyDown(KEY_LEFT_SHIFT);
+    }
 
     if (flag_pan) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -229,12 +262,14 @@ static void input(SLED sled)
     }
 
     // Change tile
-    if (IsKeyDown(KEY_SPACE) || (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !flag_pan)) {
-        TileMapSetTile(tilemap, (int)current_tile.x, (int)current_tile.y, tileset_index);
-    }
+    if (CheckCollisionPointRec(GetMousePosition(), frame_rec)) {
+        if (IsKeyDown(KEY_SPACE) || (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !flag_pan)) {
+            TileMapSetTile(tilemap, (int)current_tile.x, (int)current_tile.y, tileset_index);
+        }
 
-    if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON) && !flag_pan) {
-        TileMapSetTile(tilemap, (int)current_tile.x, (int)current_tile.y, -1);
+        if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON) && !flag_pan) {
+            TileMapSetTile(tilemap, (int)current_tile.x, (int)current_tile.y, -1);
+        }
     }
 
     // Command box
@@ -287,5 +322,10 @@ static void export_header_map(SLED sled, const char *output_file)
     fprintf(f, "\n};\n");
 
     fclose(f);
+}
+
+static void draw_render_texture(RenderTexture2D rt)
+{
+    DrawTextureRec(rt.texture, (Rectangle){ 0.0f, 0.0f, (float)rt.texture.width, (float)-rt.texture.height }, (Vector2){ 0.0f, 0.0f }, WHITE);
 }
 
