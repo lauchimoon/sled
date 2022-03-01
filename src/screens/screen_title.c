@@ -12,10 +12,8 @@
 #define AMOUNT_BUTTONS      6
 #define AMOUNT_TEXTBOXES    4
 #define MAX_INPUT_SIZE      255
-#define PATH_SIZE           512
 
 static void textboxes_init(void);
-static void draw_text_centered(SLED, const char *, int, int, Color);
 static void save(SLED *);
 
 static SledUIButton buttons[AMOUNT_BUTTONS] = { 0 };
@@ -37,6 +35,8 @@ static char *empty_texts[AMOUNT_TEXTBOXES] = {
 static bool show_new_dialog = false;
 static bool show_no_file = false;
 static bool show_tilesheet_dialog = false;
+static bool show_map_sled_dialog = false;
+static bool show_map_info_dialog = false;
 static int show_no_file_counter = 0;
 static char input_map_width[MAX_INPUT_SIZE + 1] = "\0";
 static char input_map_height[MAX_INPUT_SIZE + 1] = "\0";
@@ -51,6 +51,7 @@ static char *inputs[AMOUNT_TEXTBOXES] = {
 static Rectangle frame = { 0 };
 static char filename_map[512] = { 0 };
 static char filename_sheet[512] = { 0 };
+static char filename_map_info[512] = { 0 };
 
 void sled_screen_title_init(SLED *sled)
 {
@@ -93,15 +94,34 @@ void sled_screen_title_update(SLED *sled)
         }
         if (sled_ui_button_pressed(buttons[1])) { // Load Map
             sled->situation = SITUATION_LOAD;
-
-            if (FileExists("map.sled")) {
-                sled_set_current_screen(sled, SCREEN_EDIT);
-            }
-            show_no_file_counter = 0;
-            show_no_file = true;
+            show_map_sled_dialog = true;
         }
         if (sled_ui_button_pressed(buttons[2])) { // Exit
             sled->exit = true;
+        }
+        if (show_map_sled_dialog) {
+            int result = open_file_dialog("Load map file ...", filename_map, "*.sled", "Sled map file (*.sled)");
+
+            if (result == 1) {
+                show_map_info_dialog = true;
+
+                if (show_map_info_dialog) {
+                    int result2 = open_file_dialog("Load map info file ...", filename_map_info, "*.sledi", "Sled map info file (*.sledi)");
+
+                    if (result2 == 1) {
+                        sled->map_file = filename_map;
+                        sled->map_info_file = filename_map_info;
+                        sled_set_current_screen(sled, SCREEN_EDIT);
+                    }
+                    if (result2 >= 0) {
+                        show_map_info_dialog = false;
+                    }
+                }
+            }
+
+            if (result >= 0) {
+                show_map_sled_dialog = false;
+            }
         }
     } else {
         sled->tileset_path = inputs[4];
@@ -155,13 +175,6 @@ void sled_screen_title_draw(SLED *sled)
     draw_text(*sled, SLED_TITLE, 10, 10, 32, WHITE);
     draw_text(*sled, "Copyright (C) 2022 Laurentino Luna", 10, GetScreenHeight() - 32, 20, WHITE);
     draw_text(*sled, SLED_VERSION, 10, GetScreenHeight() - 58, 20, WHITE);
-    if (show_no_file) {
-        show_no_file_counter++;
-
-        if (show_no_file_counter <= 90) {
-            draw_text_centered(*sled, "No \"map.sled\" file found", GetScreenHeight() - 110, 20, WHITE);
-        }
-    }
     if (show_new_dialog) {
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
 
@@ -197,21 +210,15 @@ static void textboxes_init(void)
 #endif
 }
 
-static void draw_text_centered(SLED sled, const char *text, int y, int font_size, Color color)
-{
-    float spacing = sled.font.baseSize/font_size;
-    int width = MeasureTextEx(sled.font, text, (float)font_size, spacing).x;
-    draw_text(sled, text, GetScreenWidth()/2 - width/2, y, font_size, color);
-}
-
 static void save(SLED *sled)
 {
-    FILE *f = fopen("sled_map_info.txt", "w");
+    FILE *f = fopen("map.sledi", "w");
     fprintf(f, "%d\n", sled->map_width);
     fprintf(f, "%d\n", sled->map_height);
     fprintf(f, "%d\n", sled->tile_size_x);
     fprintf(f, "%d\n", sled->tile_size_y);
     fprintf(f, "%s\n", sled->tileset_path);
+    sled->map_info_file = "map.sledi";
     fclose(f);
 }
 

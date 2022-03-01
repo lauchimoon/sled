@@ -8,4 +8,5 @@ sled
 *.wasm
 *.js
 *.data
-sled_map_info.txt
+map.sledi
+*.sled

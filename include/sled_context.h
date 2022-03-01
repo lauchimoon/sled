@@ -22,6 +22,8 @@ typedef struct SLED {
     int tile_size_y;
     char *tileset_path;
     int situation;
+    char *map_file;
+    char *map_info_file;
 } SLED;
 
 void sled_init(SLED *);

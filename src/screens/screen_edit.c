@@ -71,7 +71,7 @@ void sled_screen_edit_init(SLED *sled)
     flag_grid = true;
     flag_pan = false;
     frames_counter = 0;
-    map_info = LoadFileText("sled_map_info.txt");
+    map_info = LoadFileText(sled->map_info_file);
     int split_count = 0;
     map_info_split = TextSplit(map_info, '\n', &split_count);
 
@@ -102,7 +102,7 @@ void sled_screen_edit_init(SLED *sled)
     
     if (sled->situation) { // SITUATION_LOAD
         unsigned int loaded_bytes = 0;
-        loaded_data = LoadFileData("map.sled", &loaded_bytes);
+        loaded_data = LoadFileData(sled->map_file, &loaded_bytes);
         map = calloc(map_size, size);
 
         for (int i = 0; i < map_size; i++) {
