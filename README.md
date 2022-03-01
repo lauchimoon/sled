@@ -25,7 +25,7 @@ Calling
 ```
 sled load
 ```
-Will look for a `map.sled` file and a `sled_map_info.txt` file on the current working directory.
+Will look for a `map.sled` file and a `map.sledi` file on the current working directory.
 
 ### Controls
 - Use your left mouse button to set tiles
