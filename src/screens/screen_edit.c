@@ -13,7 +13,7 @@
 
 #define MOUSE_SENSITIVITY   0.8f
 #define SCROLL_SPEED        8
-#define CMD_SIZE            255
+#define AMOUNT_BUTTONS      2
 
 static void input(SLED);
 static void export_binary_map(SLED, const char *);
@@ -26,10 +26,12 @@ static Vector2 current_tile = { 0 };
 static Texture tilesheet = { 0 };
 static TileMap *tilemap = { 0 };
 static TileSet *tileset = { 0 };
-static SledUITextBox cmd_textbox = { 0 };
-static Rectangle cmd_textbox_bounds = { 0 };
 static Rectangle frame_rec = { 0 };
-static char textbox_content[CMD_SIZE + 1] = "\0";
+static SledUIButton buttons[AMOUNT_BUTTONS] = { 0 };
+static char *button_texts[AMOUNT_BUTTONS] = {
+    "Export to sled map",
+    "Export to header file"
+};
 
 static RenderTexture2D target = { 0 };
 static int sq_width = 0;
@@ -53,14 +55,6 @@ static int map_size = 0;
 static int map_tile_size_x = 0;
 static int map_tile_size_y = 0;
 static const char *tileset_path = "";
-static int cmd_text_index = 0;
-static const char *cmd_texts[3] = {
-    "",
-    "Exported map to binary!",
-    "Exported map to header file!"
-};
-static bool show_cmd_text = false;
-static int show_cmd_counter = 0;
 
 void sled_screen_edit_init(SLED *sled)
 {
@@ -129,38 +123,37 @@ void sled_screen_edit_init(SLED *sled)
         tilemap->grid[i] = (int)map[i];
     }
 
-    // Command box stuff
-    cmd_textbox_bounds = (Rectangle){ 10, 40, 220, 48 };
-    cmd_textbox.bounds = cmd_textbox_bounds;
-    cmd_textbox.over = false;
-    cmd_textbox.letter_count = 0;
-    cmd_textbox.empty_text = "Type a command";
-
-    cmd_text_index = 0;
-    show_cmd_text = false;
-    show_cmd_counter = 0;
-
     // Rendering square
-    sq_width = (GetScreenWidth()/2) + 170;
-    sq_height = GetScreenHeight() - 20;
+    sq_width = (GetScreenWidth()/2) + 180;
+    sq_height = GetScreenHeight() - 60;
     target = LoadRenderTexture(sq_width, sq_height);
     frame_rec = (Rectangle){ 10.0f, 10.0f, sq_width - map_tile_size_x/3, sq_height };
+
+    // Buttons
+    for (int i = 0; i < AMOUNT_BUTTONS; i++) {
+        buttons[i] = (SledUIButton){
+            .bounds = (Rectangle){ (frame_rec.x + frame_rec.width) + 20, 40.0f, 180, 48 },
+        };
+    }
 }
 
 void sled_screen_edit_update(SLED *sled)
 {
     input(*sled);
-    cmd_textbox.empty_text = "Type a command";
 
     // Rendering square
-    sq_width = (GetScreenWidth()/2) + 170;
-    sq_height = GetScreenHeight() - 20;
+    sq_width = (GetScreenWidth()/2) + 180;
+    sq_height = GetScreenHeight() - 60;
 
     if (IsWindowResized()) {
         UnloadRenderTexture(target);
         target = LoadRenderTexture(sq_width, sq_height);
     }
     frame_rec = (Rectangle){ 10.0f, 10.0f, sq_width - map_tile_size_x/3, sq_height };
+
+    // Buttons
+    buttons[0].bounds = (Rectangle){ (frame_rec.x + frame_rec.width) + 20, 40.0f, GetScreenWidth() - 100, 64.0f };
+    buttons[1].bounds = (Rectangle){ (frame_rec.x + frame_rec.width) + 20, 145.0f, GetScreenWidth() - 100, 64.0f };
 }
 
 void sled_screen_edit_draw(SLED *sled)
@@ -171,6 +164,7 @@ void sled_screen_edit_draw(SLED *sled)
             Rectangle current_tile_rec = { current_tile.x*map_tile_size_x, current_tile.y*map_tile_size_y, map_tile_size_x, map_tile_size_y }; // Cursor
             TileMapDraw(tilemap);
             TileMapDrawGrid(tilemap, flag_grid? WHITE : BLANK);
+            DrawTextureRec(tilesheet, (Rectangle){ tileset_display, 0.0f, map_tile_size_x, map_tile_size_y }, (Vector2){ current_tile_rec.x, current_tile_rec.y }, Fade(WHITE, 0.9f));
             DrawRectangleLinesEx(current_tile_rec, 2, GREEN);
         EndMode2D();
     EndTextureMode();
@@ -178,18 +172,12 @@ void sled_screen_edit_draw(SLED *sled)
     draw_render_texture(target); // NOTE: this function is not portable. Implementation depends on what the programmer wants to do.
     DrawRectangleLinesEx(frame_rec, 3, LIME); // Draw a frame around the grid
 
-    Vector2 tile_pos = { (10 + map_tile_size_x) + 30, GetScreenHeight() - (map_tile_size_y + map_tile_size_y + 1) }; // Where the tile preview will be rendered
-    Rectangle tile_subtexture = { tileset_display, 0, map_tile_size_x, map_tile_size_y };
-    Rectangle tile_frame = { tile_pos.x, tile_pos.y, map_tile_size_x, map_tile_size_y };
-
-    draw_text(*sled, "Tile:", 10, GetScreenHeight() - 60, 20, WHITE);
-    DrawTextureRec(tilesheet, tile_subtexture, tile_pos, WHITE);
-    DrawRectangleLinesEx(tile_frame, 1, BLACK);
-
     draw_text(*sled, TextFormat("Cursor: %d,%d", (int)current_tile.x, (int)current_tile.y), 10, GetScreenHeight() - 30, 20, WHITE);
-    draw_text(*sled, TextFormat("Zoom: %.0f%%", camera.zoom*100), 10, 10, 20, WHITE);
-    sled_ui_textbox(*sled, &cmd_textbox, textbox_content, CMD_SIZE, false);
-    draw_text(*sled, cmd_texts[cmd_text_index], (cmd_textbox.bounds.x + cmd_textbox.bounds.width) + 20, 50, 20, (show_cmd_text)? WHITE : BLANK);
+    draw_text(*sled, TextFormat("Zoom: %.0f%%", camera.zoom*100), GetScreenWidth() - 150, 10, 20, WHITE);
+    sled_ui_button_draw(*sled, buttons[0]);
+    draw_text(*sled, "Export to sled map", buttons[0].bounds.x + 20, buttons[0].bounds.y + 18, 20, WHITE);
+    sled_ui_button_draw(*sled, buttons[1]);
+    draw_text(*sled, "Export to header", buttons[1].bounds.x + 20, buttons[1].bounds.y + 18, 20, WHITE);
 }
 
 void sled_screen_edit_deinit(SLED *sled)
@@ -272,27 +260,12 @@ static void input(SLED sled)
         }
     }
 
-    // Command box
-    if (IsKeyPressed(KEY_ENTER)) {
-        show_cmd_text = true;
-        if (TextIsEqual(textbox_content, "tobin")) {
-            export_binary_map(sled, "map.sled");
-            cmd_text_index = 1;
-        } else if (TextIsEqual(textbox_content, "toheader")) {
-            export_header_map(sled, "sled_map.h");
-            cmd_text_index = 2;
-        } else {
-            cmd_text_index = 0;
-        }
+    // Exporting
+    if (sled_ui_button_pressed(buttons[0])) {
+        export_binary_map(sled, "map.sled");
     }
-
-    if (show_cmd_text) {
-        show_cmd_counter++;
-
-        if (show_cmd_counter >= 90) {
-            show_cmd_counter = 0;
-            show_cmd_text = false;
-        }
+    if (sled_ui_button_pressed(buttons[1])) {
+        export_header_map(sled, "sled_map.h");
     }
 }
 
