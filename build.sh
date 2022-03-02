@@ -41,7 +41,7 @@ case "$TARGET" in
 		CC="x86_64-w64-mingw32-gcc"
 		EXT=".exe"
 		PLATFORM="PLATFORM_DESKTOP"
-		TARGETFLAGS="-lopengl32 -lgdi32 -lwinmm -Wl,--subsystem,windows"
+		TARGETFLAGS="-lopengl32 -lgdi32 -lwinmm -lole32 -lcomdlg32 -Wl,--subsystem,windows"
 		;;
 
 	"Linux")
