@@ -1,4 +1,5 @@
 ![](https://github.com/catmanl/sled/blob/main/assets/logo_big.png)
+
 **SLED: Stupid Level EDitor**
 
 **The program is at a very WIP stage.**
