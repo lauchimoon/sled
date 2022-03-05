@@ -100,13 +100,13 @@ void sled_screen_title_update(SLED *sled)
             sled->exit = true;
         }
         if (show_map_sled_dialog) {
-            int result = open_file_dialog("Load map file ...", filename_map, "*.sled", "Sled map file (*.sled)");
+            int result = file_dialog(DIALOG_OPEN, "Load map file ...", filename_map, "*.sled", "Sled map file (*.sled)");
 
             if (result == 1) {
                 show_map_info_dialog = true;
 
                 if (show_map_info_dialog) {
-                    int result2 = open_file_dialog("Load map info file ...", filename_map_info, "*.sledi", "Sled map info file (*.sledi)");
+                    int result2 = file_dialog(DIALOG_OPEN, "Load map info file ...", filename_map_info, "*.sledi", "Sled map info file (*.sledi)");
 
                     if (result2 == 1) {
                         sled->map_file = filename_map;
@@ -132,7 +132,7 @@ void sled_screen_title_update(SLED *sled)
             show_tilesheet_dialog = true;
         }
         if (show_tilesheet_dialog) {
-            int result = open_file_dialog("Load tilesheet ...", filename_sheet, "*.png", "Tilesheet file (*.png)");
+            int result = file_dialog(DIALOG_OPEN, "Load tilesheet ...", filename_sheet, "*.png", "Tilesheet file (*.png)");
 
             if (result == 1) {
                 sled->tileset_path = filename_sheet;

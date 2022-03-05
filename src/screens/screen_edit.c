@@ -11,6 +11,8 @@
 #define NEZ_TILEMAP_IMPLEMENTATION
 #include "tilemap.h"
 
+#include "../filedialog.h"
+
 #define MOUSE_SENSITIVITY   0.8f
 #define SCROLL_SPEED        8
 #define AMOUNT_BUTTONS      2
@@ -44,6 +46,8 @@ static unsigned char *save_data;
 static unsigned char *loaded_data;
 static bool flag_grid = true;
 static bool flag_pan = false;
+static bool show_map_sled_dialog = false;
+static bool show_map_header_dialog = false;
 static int first_index = 0;
 static int last_index = 0;
 static int frames_counter = 0;
@@ -55,6 +59,9 @@ static int map_size = 0;
 static int map_tile_size_x = 0;
 static int map_tile_size_y = 0;
 static const char *tileset_path = "";
+
+static char filename_sled_map[512] = { 0 };
+static char filename_sled_header[512] = { 0 };
 
 void sled_screen_edit_init(SLED *sled)
 {
@@ -70,6 +77,8 @@ void sled_screen_edit_init(SLED *sled)
     tileset_index = 0;
     flag_grid = true;
     flag_pan = false;
+    show_map_sled_dialog = false;
+    show_map_header_dialog = false;
     frames_counter = 0;
     map_info = LoadFileText(sled->map_info_file);
     int split_count = 0;
@@ -262,10 +271,31 @@ static void input(SLED sled)
 
     // Exporting
     if (sled_ui_button_pressed(buttons[0])) {
-        export_binary_map(sled, "map.sled");
+        show_map_sled_dialog = true;
     }
+    if (show_map_sled_dialog) {
+        int result = file_dialog(DIALOG_SAVE, "Save sled map ...", filename_sled_map, "*.sled", "Sled map file (*.sled)");
+
+        if (result == 1) {
+            export_binary_map(sled, filename_sled_map);
+        }
+        if (result >= 0) {
+            show_map_sled_dialog = false;
+        }
+    }
+
     if (sled_ui_button_pressed(buttons[1])) {
-        export_header_map(sled, "sled_map.h");
+        show_map_header_dialog = true;
+    }
+    if (show_map_header_dialog) {
+        int result = file_dialog(DIALOG_SAVE, "Save map as header ...", filename_sled_header, "*.h", "C header file (*.h)");
+
+        if (result == 1) {
+            export_header_map(sled, filename_sled_header);
+        }
+        if (result >= 0) {
+            show_map_header_dialog = false;
+        }
     }
 }
 
