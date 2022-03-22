@@ -45,7 +45,7 @@ void sled_ui_textbox(SLED sled, SledUITextBox *tb, char content[], int max, bool
         int key = GetCharPressed();
         bool cond;
 
-        cond = numeric? (key >= 49) && (key <= 58) : (key >= 32) && (key <= 126);
+        cond = numeric? (key >= 48) && (key <= 58) : (key >= 32) && (key <= 126);
 
         while (key > 0) {
             if (cond && (tb->letter_count < max)) {
