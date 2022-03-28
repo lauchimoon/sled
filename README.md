@@ -9,6 +9,7 @@
 - Export functionality: export to a `.sled` file or a header file
 - Easy to use
 - A very simple API which allows you to use maps on games you make
+- Made with raylib
 
 ## Usage
 
